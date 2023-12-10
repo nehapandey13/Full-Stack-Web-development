@@ -16,6 +16,7 @@
   Once you've implemented the logic, test your code by running
 */
 
+<<<<<<< HEAD
 class Calculator{
   constructor(){
     this.result = 0;
@@ -29,6 +30,21 @@ class Calculator{
   }
   multiply(num){
     this.result*=num;
+=======
+class Calculator {
+  constructor() {
+    this.result = 0;
+  }
+  add(num) {
+    this.result += num;
+  }
+
+  subtract(num) {
+    this.result -= num;
+  }
+  multiply(num) {
+    this.result *= num;
+>>>>>>> 5b95943 (calculator completed)
   }
   divide(num) {
     try {
@@ -41,11 +57,19 @@ class Calculator{
       throw error;
     }
   }
+<<<<<<< HEAD
   
   clear(){
     this.result=0;
   }
   getResult(){
+=======
+
+  clear() {
+    this.result = 0;
+  }
+  getResult() {
+>>>>>>> 5b95943 (calculator completed)
     return this.result;
   }
   calculate(str) {
