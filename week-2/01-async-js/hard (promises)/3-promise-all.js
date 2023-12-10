@@ -5,18 +5,29 @@
  */
 
 function wait1(t) {
-
+    return new Promise(resolve => { setInterval(resolve, t * 1000) });
 }
 
 function wait2(t) {
-
+    return new Promise(resolve => { setInterval(resolve, t * 1000) });
 }
 
 function wait3(t) {
-
+    return new Promise(resolve => { setInterval(resolve, t * 1000) });
 }
 
+
+
 function calculateTime(t1, t2, t3) {
+    const date1 = new Date();
+    const c1 = date1.getMilliseconds();
+    return Promise.all([wait1(t1), wait2(t2), wait3(t3)]).then(() => {
+        const date2 = new Date();
+        const c2 = date2.getMilliseconds();
+        return (date2 - date1);
+    });
+
+    // console.log(c2 - c1);
 
 }
 
