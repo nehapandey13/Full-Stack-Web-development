@@ -39,91 +39,9 @@
 
 //   Testing the server - run `npm run test-todoServer` command in terminal
 //  */
-// const express = require('express');
-// const bodyParser = require('body-parser');
-
-
-// const port = 3000;
-
-// const app = express();
-
-// app.use(bodyParser.json());
-
-// var Todos = [];
-// let todoCounter = 0;
-// app.delete('/todos/:id', (req, res) => {
-//   const Todos_Id = parseInt(req.params.id);
-//   const todoIndex = Todos_Id - 1;
-//   // for (let i = 0; i < Todos.size; i++) {
-//   //   if (i === (Todos_Id - 1)) {
-//   //     todoIndex = i;
-//   //     break;
-//   //   }
-//   // }
-
-//   if (todoIndex >= 0 && todoIndex < Todos.length) {
-//     Todos.splice(todoIndex, 1);
-//     res.status(200).send('the todo item was found and deleted');
-//   }
-//   else {
-//     res.status(404).send("Not Found");
-//   }
-// })
-
-
-// app.put('/todos/:id', (req, res) => {
-//   const todoIndex = parseInt(req.params.id);
-//   // const todoIndex = -1;
-//   // for (let i = 0; i < Todos.length; i++) {
-//   //   if (i === (Todos_Id - 1)) {
-//   //     todoIndex = i;
-//   //     break;
-//   //   }
-//   // }
-//   if ((todoIndex - 1) >= 0 && (todoIndex - 1) < Todos.length) {
-//     Todos[todoIndex] = JSON.stringify(req.body);
-//     res.status(200).json(Todos[todoIndex]);
-//   } else {
-//     res.status(404).send({ error: "Id not found" });
-//   }
-// });
-
-
-// app.post('/todos', (req, res) => {
-//   const obj = JSON.stringify(req.body);
-
-//   Todos.push(obj);
-//   res.status(201).send("new object is added");
-// })
-
-
-
-// app.get('/todos/:id', (req, res) => {
-//   const Todos_Id = parseInt(req.params.id);
-//   const idx = Todos_Id - 1;
-//   if (idx >= 0 && idx < Todos.length) {
-
-//     res.status(200).json(todo);
-//   }
-//   else {
-//     res.status(404).send("Todo not found on this id");
-//   }
-
-// })
-
-
-// app.get('/todos', (req, res) => {
-//   res.status(200).json(Todos);
-// })
-
-
-// app.listen(port, () => {
-//   console.log(`App is listening at ${port}`);
-// });
-// module.exports = app;
-
 const express = require('express');
 const bodyParser = require('body-parser');
+const fs = require('fs');
 
 // const port = 3000;
 const app = express();
@@ -131,15 +49,38 @@ app.use(bodyParser.json());
 
 let Todos = [];
 let todoCounter = 0;
+// fs.readFile('todos.json', 'utf-8', (err, data) => {
+//   // console.log(data);
+//   Todos.push(data);
+//   todoCounter = Todos.length - 1;
+// })
+
 
 app.post('/todos', (req, res) => {
   try {
+    // console.log(req.body);
+    const tempFileData = fs.readFileSync('todos.json', 'utf-8');
+    Todos = tempFileData.split('\n');
+    todoCounter = Todos.length - 1;
     const newTodo = {
       id: ++todoCounter,
       title: req.body.title,
       description: req.body.description
     };
     Todos.push(newTodo);
+    // const obj = JSON.parse(newTodo);
+    fs.appendFile('todos.json', JSON.stringify(newTodo), err => {
+      if (err) {
+        console.log("file err");
+      }
+    })
+    fs.appendFile('todos.json', '\n', err => {
+      if (err) {
+        console.log("file err");
+      }
+    })
+
+
     res.status(201).json(newTodo);
   } catch (error) {
     res.status(500).send({ error: 'Internal Server Error' });
@@ -148,6 +89,9 @@ app.post('/todos', (req, res) => {
 
 app.get('/todos', (req, res) => {
   try {
+    const tempFileData = fs.readFileSync('todos.json', 'utf-8');
+    Todos = tempFileData.split('\n');
+    Todos.pop();
     res.status(200).json(Todos);
   } catch (error) {
     res.status(500).send({ error: 'Internal Server Error' });
@@ -157,7 +101,15 @@ app.get('/todos', (req, res) => {
 app.get('/todos/:id', (req, res) => {
   try {
     const Todos_Id = parseInt(req.params.id);
-    const todo = Todos.find(item => item.id === Todos_Id);
+    const tempFileData = fs.readFileSync('todos.json', 'utf-8');
+    Todos = tempFileData.split('\n');
+    Todos.pop();
+    // console.log(Todos);
+    // for(let)
+    for (let i = 0; i < Todos.length; i++) {
+      Todos[i] = JSON.parse(Todos[i]);
+    }
+    const todo = Todos.find(item => item.id == Todos_Id);
 
     if (todo) {
       res.status(200).json(todo);
@@ -172,10 +124,33 @@ app.get('/todos/:id', (req, res) => {
 app.put('/todos/:id', (req, res) => {
   try {
     const Todos_Id = parseInt(req.params.id);
+    const tempFileData = fs.readFileSync('todos.json', 'utf-8');
+    Todos = tempFileData.split('\n');
+    Todos.pop();
+    // console.log(Todos);
+    // for(let)
+    for (let i = 0; i < Todos.length; i++) {
+      Todos[i] = JSON.parse(Todos[i]);
+    }
     const todoIndex = Todos.findIndex(todo => todo.id === Todos_Id);
 
     if (todoIndex !== -1) {
       Todos[todoIndex] = { ...Todos[todoIndex], ...req.body };
+      fs.writeFile('todos.json', '', (err) => {
+        console.log('err');
+      })
+      for (let i = 0; i < Todos.length; i++) {
+        fs.appendFile('todos.json', JSON.stringify(Todos[i]), err => {
+          if (err) {
+            console.log("file err");
+          }
+        })
+        fs.appendFile('todos.json', '\n', err => {
+          if (err) {
+            console.log("file err");
+          }
+        })
+      }
       res.status(200).json(Todos[todoIndex]);
     } else {
       res.status(404).send({ error: "Id not found" });
@@ -188,10 +163,35 @@ app.put('/todos/:id', (req, res) => {
 app.delete('/todos/:id', (req, res) => {
   try {
     const Todos_Id = parseInt(req.params.id);
+    const tempFileData = fs.readFileSync('todos.json', 'utf-8');
+    Todos = tempFileData.split('\n');
+    Todos.pop();
+    for (let i = 0; i < Todos.length; i++) {
+      Todos[i] = JSON.parse(Todos[i]);
+    }
+    console.log(Todos);
     const todoIndex = Todos.findIndex(todo => todo.id === Todos_Id);
-
+    console.log(todoIndex);
     if (todoIndex !== -1) {
       Todos.splice(todoIndex, 1);
+      // console.log(Todos);
+
+      fs.writeFile('todos.json', '', (err) => {
+        console.log('err');
+      })
+      for (let i = 0; i < Todos.length; i++) {
+        fs.appendFile('todos.json', JSON.stringify(Todos[i]), err => {
+          if (err) {
+            console.log("file err");
+          }
+        })
+        fs.appendFile('todos.json', '\n', err => {
+          if (err) {
+            console.log("file err");
+          }
+        })
+      }
+
       res.status(200).send({ message: 'Todo item deleted successfully' });
     } else {
       res.status(404).send("Todo ID not found");
@@ -200,11 +200,17 @@ app.delete('/todos/:id', (req, res) => {
     res.status(500).send({ error: 'Internal Server Error' });
   }
 });
-
-const port = process.env.TEST_ENV ? 0 : 3000; // Port 0 will let the system assign a free port
+for (let i = 0; i < Todos.length; i++) {
+  fs.writeFile('todos.json', JSON.stringify(Todos[i]), err => {
+    if (err) {
+      console.log("file err");
+    }
+  })
+}
+const port = 3000; // Port 0 will let the system assign a free port
 app.listen(port, () => {
-  const actualPort = server.address().port;
-  console.log(`App is listening at ${actualPort}`);
+  // const actualPort = server.address().port;
+  console.log(`App is listening at ${port}`);
 });
 
 module.exports = app; // Export the server for testing purposes
