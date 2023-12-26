@@ -3,7 +3,11 @@ const bodyParser = require('body-parser');
 const app = express();
 const adminRouter = require("./routes/admin")
 const userRouter = require("./routes/user");
+const mongoose = require("mongoose");
 
+mongoose.connect('mongodb+srv://nehapandey13:Luvumapapa@cluster1.fhejeqb.mongodb.net/').then(() => {
+    console.log("DB Connected bro chill");
+});
 // Middleware for parsing request bodies
 app.use(bodyParser.json());
 app.use("/admin", adminRouter)
